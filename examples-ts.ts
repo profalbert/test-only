@@ -3,12 +3,17 @@ enum Gender {
   Female,
 }
 
-const groupBy = <T>(array: Array<T>, callback: Function): object => {
-  const result = {}
+type TCallback<T> = (el: T) => string | number
+type TResult<T> = {
+  [key in ReturnType<TCallback<T>>]: Array<T>
+}
+
+const groupBy = <T>(array: Array<T>, callback: TCallback<T>): TResult<T> => {
+  const result: TResult<T> = {}
 
   array.forEach((el) => {
-    const key = callback(el)
-    if (!(result[key] instanceof Array)) result[key] = []
+    const key: ReturnType<TCallback<T>> = callback(el)
+    if (!Array.isArray(result[key])) result[key] = []
     result[key].push(el)
   })
 
@@ -17,6 +22,7 @@ const groupBy = <T>(array: Array<T>, callback: Function): object => {
 
 console.log(groupBy([1.2, 1.1, 2.3, 0.4], Math.floor))
 console.log(groupBy(['one', 'two', 'three'], (el) => el.length))
+console.log(groupBy(['one', 'two', 'three'], (el) => el.split('').pop()))
 console.log(
   groupBy(
     [
